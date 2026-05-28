@@ -1,9 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Сервис рассылок</title>
-</head>
-<body>
-    <h1>Добро пожаловать в сервис рассылок!</h1>
-</body>
-</html>
+{% extends 'mailing/base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">👥 Клиенты</h5>
+                <p class="card-text">Управление получателями рассылок</p>
+                <a href="{% url 'mailing:client_list' %}" class="btn btn-primary">Перейти</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
