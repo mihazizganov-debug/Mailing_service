@@ -2,12 +2,30 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-6 mx-auto">
+    <div class="col-md-4">
         <div class="card text-center">
             <div class="card-body">
                 <h5 class="card-title">👥 Клиенты</h5>
                 <p class="card-text">Управление получателями рассылок</p>
                 <a href="{% url 'mailing:client_list' %}" class="btn btn-primary">Перейти</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">✉️ Сообщения</h5>
+                <p class="card-text">Создание и редактирование писем</p>
+                <a href="{% url 'mailing:message_list' %}" class="btn btn-primary">Перейти</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">📨 Рассылки</h5>
+                <p class="card-text">Управление рассылками и статистика</p>
+                <a href="{% url 'mailing:mailing_list' %}" class="btn btn-primary">Перейти</a>
             </div>
         </div>
     </div>
