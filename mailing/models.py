@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils import timezone
+
 
 class Client(models.Model):
     email = models.EmailField(unique=True, verbose_name='Email')
@@ -40,6 +42,17 @@ class Mailing(models.Model):
 
     def __str__(self):
         return f'Рассылка #{self.id}'
+
+    def update_status(self):
+        """Обновляет статус рассылки в зависимости от текущего времени"""
+        now = timezone.now()
+        if now < self.start_time:
+            self.status = 'created'
+        elif self.start_time <= now <= self.end_time:
+            self.status = 'started'
+        else:
+            self.status = 'completed'
+        self.save()
 
     class Meta:
         verbose_name = 'Рассылка'
