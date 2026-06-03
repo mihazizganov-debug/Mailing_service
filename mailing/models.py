@@ -1,78 +1,93 @@
 from django.db import models
+from django.conf import settings
 from django.utils import timezone
 
 
 class Client(models.Model):
-    email = models.EmailField(unique=True, verbose_name='Email')
-    full_name = models.CharField(max_length=255, verbose_name='Ф. И. О.')
-    comment = models.TextField(blank=True, verbose_name='Комментарий')
+    email = models.EmailField(unique=True, verbose_name="Email")
+    full_name = models.CharField(max_length=255, verbose_name="Ф. И. О.")
+    comment = models.TextField(blank=True, verbose_name="Комментарий")
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Владелец"
+    )
 
     def __str__(self):
         return self.email
 
     class Meta:
-        verbose_name = 'Клиент'
-        verbose_name_plural = 'Клиенты'
+        verbose_name = "Клиент"
+        verbose_name_plural = "Клиенты"
 
 
 class Message(models.Model):
-    subject = models.CharField(max_length=255, verbose_name='Тема письма')
-    body = models.TextField(verbose_name='Тело письма')
+    subject = models.CharField(max_length=255, verbose_name="Тема письма")
+    body = models.TextField(verbose_name="Тело письма")
 
     def __str__(self):
         return self.subject
 
     class Meta:
-        verbose_name = 'Сообщение'
-        verbose_name_plural = 'Сообщения'
+        verbose_name = "Сообщение"
+        verbose_name_plural = "Сообщения"
 
 
 class Mailing(models.Model):
     STATUS_CHOICES = [
-        ('created', 'Создана'),
-        ('started', 'Запущена'),
-        ('completed', 'Завершена'),
+        ("created", "Создана"),
+        ("started", "Запущена"),
+        ("completed", "Завершена"),
     ]
 
-    start_time = models.DateTimeField(verbose_name='Дата и время начала')
-    end_time = models.DateTimeField(verbose_name='Дата и время окончания')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='created', verbose_name='Статус')
-    message = models.ForeignKey(Message, on_delete=models.CASCADE, verbose_name='Сообщение')
-    recipients = models.ManyToManyField(Client, verbose_name='Получатели')
+    start_time = models.DateTimeField(verbose_name="Дата и время начала")
+    end_time = models.DateTimeField(verbose_name="Дата и время окончания")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="created", verbose_name="Статус")
+    message = models.ForeignKey(Message, on_delete=models.CASCADE, verbose_name="Сообщение")
+    recipients = models.ManyToManyField(Client, verbose_name="Получатели")
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Владелец"
+    )
 
     def __str__(self):
-        return f'Рассылка #{self.id}'
+        return f"Рассылка #{self.id}"
 
     def update_status(self):
         """Обновляет статус рассылки в зависимости от текущего времени"""
         now = timezone.now()
         if now < self.start_time:
-            self.status = 'created'
+            self.status = "created"
         elif self.start_time <= now <= self.end_time:
-            self.status = 'started'
+            self.status = "started"
         else:
-            self.status = 'completed'
+            self.status = "completed"
         self.save()
 
     class Meta:
-        verbose_name = 'Рассылка'
-        verbose_name_plural = 'Рассылки'
+        verbose_name = "Рассылка"
+        verbose_name_plural = "Рассылки"
 
 
 class Attempt(models.Model):
     STATUS_CHOICES = [
-        ('success', 'Успешно'),
-        ('failed', 'Не успешно'),
+        ("success", "Успешно"),
+        ("failed", "Не успешно"),
     ]
 
-    attempt_time = models.DateTimeField(auto_now_add=True, verbose_name='Дата и время попытки')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, verbose_name='Статус')
-    server_response = models.TextField(blank=True, verbose_name='Ответ сервера')
-    mailing = models.ForeignKey(Mailing, on_delete=models.CASCADE, verbose_name='Рассылка')
+    attempt_time = models.DateTimeField(auto_now_add=True, verbose_name="Дата и время попытки")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, verbose_name="Статус")
+    server_response = models.TextField(blank=True, verbose_name="Ответ сервера")
+    mailing = models.ForeignKey(Mailing, on_delete=models.CASCADE, verbose_name="Рассылка")
 
     def __str__(self):
-        return f'Попытка #{self.id} для рассылки #{self.mailing.id}'
+        return f"Попытка #{self.id} для рассылки #{self.mailing.id}"
 
     class Meta:
-        verbose_name = 'Попытка'
-        verbose_name_plural = 'Попытки'
+        verbose_name = "Попытка"
+        verbose_name_plural = "Попытки"
