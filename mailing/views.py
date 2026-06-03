@@ -35,14 +35,15 @@ class ClientListView(LoginRequiredMixin, ListView):
     context_object_name = "clients"
 
     def get_queryset(self):
-        # Менеджер видит всех клиентов
-        if self.request.user.groups.filter(name='Менеджер').exists():
+        user = self.request.user
+        # Суперпользователь или менеджер видят всех
+        if user.is_superuser or user.groups.filter(name='Менеджер').exists():
             return Client.objects.all()
         # Обычный пользователь видит только своих
-        cache_key = f'clients_user_{self.request.user.id}'
+        cache_key = f'clients_user_{user.id}'
         queryset = cache.get(cache_key)
         if queryset is None:
-            queryset = Client.objects.filter(owner=self.request.user)
+            queryset = Client.objects.filter(owner=user)
             cache.set(cache_key, queryset, 60 * 15)
         return queryset
 
@@ -132,14 +133,15 @@ class MailingListView(LoginRequiredMixin, ListView):
     context_object_name = "mailings"
 
     def get_queryset(self):
-        # Менеджер видит все рассылки
-        if self.request.user.groups.filter(name='Менеджер').exists():
+        user = self.request.user
+        # Суперпользователь или менеджер видят все рассылки
+        if user.is_superuser or user.groups.filter(name='Менеджер').exists():
             return Mailing.objects.all()
         # Обычный пользователь видит только свои
-        cache_key = f'mailings_user_{self.request.user.id}'
+        cache_key = f'mailings_user_{user.id}'
         queryset = cache.get(cache_key)
         if queryset is None:
-            queryset = Mailing.objects.filter(owner=self.request.user)
+            queryset = Mailing.objects.filter(owner=user)
             cache.set(cache_key, queryset, 60 * 15)
         return queryset
 
