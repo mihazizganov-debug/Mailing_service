@@ -1,0 +1,18 @@
+{% extends 'mailing/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 text-center">
+        <h1>{% trans "Подтверждение email" %}</h1>
+        {% if confirmation %}
+            <form method="post" action="{% url 'account_confirm_email' confirmation.key %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Подтвердить</button>
+            </form>
+        {% else %}
+            <p>Неверная ссылка для подтверждения.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
